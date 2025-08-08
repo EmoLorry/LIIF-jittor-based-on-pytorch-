@@ -2,10 +2,9 @@ import os
 import time
 import shutil
 import math
-
-import torch
 import numpy as np
-from torch.optim import SGD, Adam
+import jittor as jt
+from jittor.optim import SGD, Adam
 from tensorboardX import SummaryWriter
 
 
@@ -88,14 +87,20 @@ def compute_num_params(model, text=False):
         return tot
 
 
-def make_optimizer(param_list, optimizer_spec, load_sd=False):
+def make_optimizer(param_list, optimizer_spec):
     Optimizer = {
         'sgd': SGD,
         'adam': Adam
     }[optimizer_spec['name']]
+
+##optimizer:
+##  name: adam         # 优化器类型
+##  args:
+##    lr: 1.e-4        # 学习率
+
     optimizer = Optimizer(param_list, **optimizer_spec['args'])
-    if load_sd:
-        optimizer.load_state_dict(optimizer_spec['sd'])
+    #其实就是调用
+    # classjittor.optim.Adam(params, lr, eps=1e-08, betas=(0.9, 0.999), weight_decay=0)
     return optimizer
 
 
@@ -109,14 +114,17 @@ def make_coord(shape, ranges=None, flatten=True):
         else:
             v0, v1 = ranges[i]
         r = (v1 - v0) / (2 * n)
-        seq = v0 + r + (2 * r) * torch.arange(n).float()
+        # Jittor中用jt.arange替代torch.arange
+        seq = v0 + r + (2 * r) * jt.arange(n).float()
         coord_seqs.append(seq)
-    ret = torch.stack(torch.meshgrid(*coord_seqs), dim=-1)
+    # Jittor中用jt.meshgrid替代torch.meshgrid
+    ret = jt.stack(jt.meshgrid(*coord_seqs), dim=-1)
     if flatten:
-        ret = ret.view(-1, ret.shape[-1])
+        # Jittor中用reshape替代view（功能相同）
+        ret = ret.reshape(-1, ret.shape[-1])
     return ret
 
-
+#像素网格坐标->RGB值的映射
 def to_pixel_samples(img):
     """ Convert the image to coord-RGB pairs.
         img: Tensor, (3, H, W)
@@ -142,5 +150,6 @@ def calc_psnr(sr, hr, dataset=None, scale=1, rgb_range=1):
         valid = diff[..., shave:-shave, shave:-shave]
     else:
         valid = diff
-    mse = valid.pow(2).mean()
-    return -10 * torch.log10(mse)
+    # 计算均方误差,因为传入的是torch.Tensor->jt.Var
+    mse = valid.pow(2).mean()  # Jittor张量的方法
+    return -10 * jt.log10(mse)  # Jittor的对数函数
