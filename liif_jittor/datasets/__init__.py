@@ -1,3 +1,3 @@
-from .datasets import register, make
-from . import image_folder
-from . import wrappers
+from .datasets_jt import register, make
+from . import image_folder_jt
+from . import wrappers_jt
