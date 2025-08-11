@@ -9,13 +9,23 @@ import jittor as jt
 from jittor.dataset import Dataset
 from .datasets_jt import register
 
-def pil_to_jt_tensor(img_pil):
-    arr = np.array(img_pil)                  # H, W, C
+def pil_to_numpy_array(img_pil):
+    """将PIL图像转换为numpy数组，用于内存缓存"""
+    arr = np.array(img_pil)
     if arr.ndim == 2:
         arr = arr[..., None]
     arr = arr.astype('float32') / 255.0
-    arr = arr.transpose(2, 0, 1).copy()     # HWC -> CHW
-    return jt.array(arr)                    # jt.Var (C, H, W), float32, [0,1]
+    arr = arr.transpose(2, 0, 1).copy()
+    return arr  # 直接返回numpy数组，不转换为Jittor张量
+
+def pil_to_jt_tensor(img_pil):
+    """将PIL图像转换为Jittor张量，用于实时处理"""
+    arr = np.array(img_pil)
+    if arr.ndim == 2:
+        arr = arr[..., None]
+    arr = arr.astype('float32') / 255.0
+    arr = arr.transpose(2, 0, 1).copy()
+    return jt.array(arr)  # 返回Jittor张量
 
 @register('image-folder')
 class ImageFolder(Dataset):
@@ -56,7 +66,8 @@ class ImageFolder(Dataset):
                 self.files.append(bin_file)
 
             elif cache == 'in_memory':
-                self.files.append(pil_to_jt_tensor(
+                # 强制放在CPU上，避免显存爆炸
+                self.files.append(pil_to_numpy_array(
                     Image.open(file).convert('RGB')))
 # 必须告诉 jittor 总长度，否则会报错
         self.set_attrs(total_len = len(self.files) * self.repeat)
@@ -70,7 +81,6 @@ class ImageFolder(Dataset):
 
         if self.cache == 'none':
             return pil_to_jt_tensor(Image.open(x).convert('RGB'))
-
         elif self.cache == 'bin':
             with open(x, 'rb') as f:
                 x = pickle.load(f)
@@ -81,7 +91,9 @@ class ImageFolder(Dataset):
             return x
 
         elif self.cache == 'in_memory':
-            return x
+            # x已经是numpy数组，转换为Jittor张量并放到GPU
+            # 使用reuse_np_array更稳定，直接复用numpy数组内存
+            return jt.reuse_np_array(x)
 
 
 @register('paired-image-folders')

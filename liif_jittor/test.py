@@ -4,17 +4,15 @@ import math
 from functools import partial
 
 import yaml
-import torch
-from torch.utils.data import DataLoader
 from tqdm import tqdm
-
+import jittor as jt
 import datasets
-import utils
-import models
-
+import utils_jittor
+import models_jt
+jt.flags.use_cuda = 1
 
 def batched_predict(model, inp, coord, cell, bsize):
-    with torch.no_grad():
+    with jt.no_grad():
         model.gen_feat(inp)
         n = coord.shape[1]
         ql = 0
@@ -24,7 +22,7 @@ def batched_predict(model, inp, coord, cell, bsize):
             pred = model.query_rgb(coord[:, ql: qr, :], cell[:, ql: qr, :])
             preds.append(pred)
             ql = qr
-        pred = torch.cat(preds, dim=1)
+        pred = jt.contrib.concat(preds, dim=1)
     return pred
 
 
@@ -38,24 +36,24 @@ def eval_psnr(loader, model, data_norm=None, eval_type=None, eval_bsize=None,
             'gt': {'sub': [0], 'div': [1]}
         }
     t = data_norm['inp']
-    inp_sub = torch.FloatTensor(t['sub']).view(1, -1, 1, 1).cuda()
-    inp_div = torch.FloatTensor(t['div']).view(1, -1, 1, 1).cuda()
+    inp_sub = jt.array(t['sub'], dtype=jt.float32).reshape(1, -1, 1, 1)
+    inp_div = jt.array(t['div'], dtype=jt.float32).reshape(1, -1, 1, 1)
     t = data_norm['gt']
-    gt_sub = torch.FloatTensor(t['sub']).view(1, 1, -1).cuda()
-    gt_div = torch.FloatTensor(t['div']).view(1, 1, -1).cuda()
-
+    gt_sub  = jt.array(t['sub'], dtype=jt.float32).reshape(1, 1, -1)
+    gt_div  = jt.array(t['div'], dtype=jt.float32).reshape(1, 1, -1)
+    
     if eval_type is None:
-        metric_fn = utils.calc_psnr
+        metric_fn = utils_jittor.calc_psnr
     elif eval_type.startswith('div2k'):
         scale = int(eval_type.split('-')[1])
-        metric_fn = partial(utils.calc_psnr, dataset='div2k', scale=scale)
+        metric_fn = partial(utils_jittor.calc_psnr, dataset='div2k', scale=scale)
     elif eval_type.startswith('benchmark'):
         scale = int(eval_type.split('-')[1])
-        metric_fn = partial(utils.calc_psnr, dataset='benchmark', scale=scale)
+        metric_fn = partial(utils_jittor.calc_psnr, dataset='benchmark', scale=scale)
     else:
         raise NotImplementedError
 
-    val_res = utils.Averager()
+    val_res = utils_jittor.Averager()
 
     pbar = tqdm(loader, leave=False, desc='val')
     for batch in pbar:
@@ -64,22 +62,20 @@ def eval_psnr(loader, model, data_norm=None, eval_type=None, eval_bsize=None,
 
         inp = (batch['inp'] - inp_sub) / inp_div
         if eval_bsize is None:
-            with torch.no_grad():
+            with jt.no_grad():
                 pred = model(inp, batch['coord'], batch['cell'])
         else:
             pred = batched_predict(model, inp,
                 batch['coord'], batch['cell'], eval_bsize)
         pred = pred * gt_div + gt_sub
-        pred.clamp_(0, 1)
+        pred = pred.clamp(0, 1)
 
         if eval_type is not None: # reshape for shaving-eval
             ih, iw = batch['inp'].shape[-2:]
             s = math.sqrt(batch['coord'].shape[1] / (ih * iw))
             shape = [batch['inp'].shape[0], round(ih * s), round(iw * s), 3]
-            pred = pred.view(*shape) \
-                .permute(0, 3, 1, 2).contiguous()
-            batch['gt'] = batch['gt'].view(*shape) \
-                .permute(0, 3, 1, 2).contiguous()
+            pred = pred.reshape(*shape).permute(0, 3, 1, 2).contiguous()
+            batch['gt'] = batch['gt'].reshape(*shape).permute(0, 3, 1, 2).contiguous()
 
         res = metric_fn(pred, batch['gt'])
         val_res.add(res.item(), inp.shape[0])
@@ -105,11 +101,16 @@ if __name__ == '__main__':
     spec = config['test_dataset']
     dataset = datasets.make(spec['dataset'])
     dataset = datasets.make(spec['wrapper'], args={'dataset': dataset})
-    loader = DataLoader(dataset, batch_size=spec['batch_size'],
-        num_workers=8, pin_memory=True)
+    # Jittor不需要DataLoader，直接使用dataset
+    dataset.set_attrs(
+        batch_size=spec['batch_size'],
+        shuffle=False,  # 测试时不需要打乱
+        num_workers=8
+    )
+    loader = dataset
 
-    model_spec = torch.load(args.model)['model']
-    model = models.make(model_spec, load_sd=True).cuda()
+    model_spec = jt.load(args.model)['model']
+    model = models_jt.make(model_spec, load_sd=True)
 
     res = eval_psnr(loader, model,
         data_norm=config.get('data_norm'),

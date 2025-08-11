@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 import jittor as jt
 from jittor.dataset import Dataset
-
+jt.flags.use_cuda = 1
 from .datasets_jt import register
 from utils_jittor import to_pixel_samples
 
@@ -98,6 +98,31 @@ class SRImplicitPaired(Dataset):
         }
 
 
+# def resize_fn(img, size):
+#     # Accept size as int or (H, W)
+#     if isinstance(size, int):
+#         target_h, target_w = size, size
+#     else:
+#         target_h, target_w = int(size[0]), int(size[1])
+
+#     # Convert input to numpy HWC uint8 for PIL
+#     if isinstance(img, jt.Var):
+#         arr = img.numpy()  # CHW, float in [0,1]
+#     else:
+#         arr = np.asarray(img)
+
+#     if arr.ndim == 3 and arr.shape[0] in (1, 3):
+#         arr = np.transpose(arr, (1, 2, 0))  # CHW -> HWC
+
+#     if arr.dtype != np.uint8:
+#         arr = np.clip(arr * 255.0, 0, 255).astype(np.uint8)
+
+#     pil_img = Image.fromarray(arr)
+#     pil_resized = pil_img.resize((target_w, target_h), resample=Image.BICUBIC)
+
+#     out = np.asarray(pil_resized).astype('float32') / 255.0  # HWC in [0,1]
+#     out = np.transpose(out, (2, 0, 1))  # HWC -> CHW
+#     return jt.array(out)
 def resize_fn(img, size):
     # Accept size as int or (H, W)
     if isinstance(size, int):
@@ -105,25 +130,13 @@ def resize_fn(img, size):
     else:
         target_h, target_w = int(size[0]), int(size[1])
 
-    # Convert input to numpy HWC uint8 for PIL
-    if isinstance(img, jt.Var):
-        arr = img.numpy()  # CHW, float in [0,1]
-    else:
-        arr = np.asarray(img)
-
-    if arr.ndim == 3 and arr.shape[0] in (1, 3):
-        arr = np.transpose(arr, (1, 2, 0))  # CHW -> HWC
-
-    if arr.dtype != np.uint8:
-        arr = np.clip(arr * 255.0, 0, 255).astype(np.uint8)
-
-    pil_img = Image.fromarray(arr)
-    pil_resized = pil_img.resize((target_w, target_h), resample=Image.BICUBIC)
-
-    out = np.asarray(pil_resized).astype('float32') / 255.0  # HWC in [0,1]
-    out = np.transpose(out, (2, 0, 1))  # HWC -> CHW
-    return jt.array(out)
-
+    # 确保 img 是 4D 张量 [N, C, H, W]
+    if img.ndim == 3:
+        img = img.unsqueeze(0)  # [1, C, H, W]
+    
+    # 使用正确的参数格式 (H, W)
+    out = jt.nn.resize(img, (target_h, target_w), mode='bicubic', align_corners=False)
+    return out.squeeze(0)  # 如果只处理单张图，去掉 batch 维
 
 @register('sr-implicit-downsampled')
 class SRImplicitDownsampled(Dataset):
@@ -162,7 +175,7 @@ class SRImplicitDownsampled(Dataset):
             x0 = random.randint(0, img.shape[-2] - w_hr)
             y0 = random.randint(0, img.shape[-1] - w_hr)
             crop_hr = img[:, x0: x0 + w_hr, y0: y0 + w_hr]
-            crop_lr = resize_fn(crop_hr, w_lr)
+            crop_lr = resize_fn(crop_hr, (w_lr, w_lr))
 
         if self.augment:
             hflip = random.random() < 0.5
@@ -180,14 +193,15 @@ class SRImplicitDownsampled(Dataset):
 
             crop_lr = augment(crop_lr)
             crop_hr = augment(crop_hr)
-
+        #print(crop_hr.shape,type(crop_hr))
         hr_coord, hr_rgb = to_pixel_samples(crop_hr.contiguous())
 
+        # hr_coord/hr_rgb 是 jt.Var
         if self.sample_q is not None:
-            sample_lst = np.random.choice(
-                len(hr_coord), self.sample_q, replace=False)
-            hr_coord = hr_coord[sample_lst]
-            hr_rgb = hr_rgb[sample_lst]
+            N = hr_coord.shape[0]
+            idx = jt.randperm(N)[:self.sample_q]   # jt.randperm 在 Jittor 中的 API 名称请按当前版本确认
+            hr_coord = hr_coord[idx]
+            hr_rgb = hr_rgb[idx]
 
         cell = jt.ones_like(hr_coord)
         cell[:, 0] *= 2 / crop_hr.shape[-2]
