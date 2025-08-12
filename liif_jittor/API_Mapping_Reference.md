@@ -31,6 +31,6 @@
 3. **数据加载**: 移除 `DataLoader`，直接设置数据集属性
 4. **内存优化**: 使用 `jt.reuse_np_array()` 优化内存
 5. **数据类型**: 明确指定 `dtype=jt.float32`
-6. **数据集长度**: 必须设置 `total_len`
+6. **内存管理**：`pytorch`有兼容性很强的内存GPU/CPU协调机制，而`jittor`需要谨慎张量移动操作，过早地把大量数据直接转为`Var`类型可能导致显存直接崩溃（调度无效）
 7. **随机采样**: 使用 `jt.randperm()` 替代 `np.random.choice()`
 
