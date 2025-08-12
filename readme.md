@@ -2,7 +2,7 @@
 
 ## 📖 项目简介
 
-本项目实现了论文 [Learning Continuous Image Representation with Implicit Neural Function](https://arxiv.org/abs/2012.09161) 中提出的 LIIF 方法，提供了 **PyTorch** 和 **Jittor** 两个深度学习框架的完整实现。
+本项目实现了论文 [Learning Continuous Image Representation with Implicit Neural Function](https://arxiv.org/abs/2012.09161) 中提出的 LIIF 方法，基于论文官方提供的 **PyTorch**源码进行项目重构和 **Jittor**框架迁移的深度学习完整实现。
 
 LIIF 是一种基于隐式神经表示的超分辨率方法，通过学习连续图像表示，能够处理任意尺度的超分辨率任务，在分布内和分布外尺度上都表现出色。
 
