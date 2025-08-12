@@ -35,7 +35,7 @@ LIIF/
     ├── train-div2k/              # DIV2K 训练配置
     ├── models_jt.py              # Jittor 模型定义
     ├── models_torch.py           # 原始 PyTorch 模型（参考）
-    ├── train.py                  # 训练脚本
+    ├── trainon0.py               # 训练脚本(在GPU0上)
     ├── test.py                   # 测试脚本
     ├── utils_jittor.py           # 工具函数库
     ├── demo.py                   # 单图像推理演示
@@ -149,6 +149,8 @@ def pil_to_numpy_array(img_pil):
 
 #### 2.2 GPU 管理
 ⚠️ **重要**: 谨慎使用 `x.cuda()`，因为 Jittor 会自动管理 GPU 内存，手动指定可能导致显存报错。
+
+另外要注意，torch和jittor两个框架训练时指定GPU的方式也略有不同，设定os.environ['CUDA_VISIBLE_DEVICES'] = 'x'的位置前者可以在训练执行代码前指定即可，而后者必须在导入jittor前就进行指定。
 
 ### 3. 训练速度对比
 
@@ -302,10 +304,10 @@ pip install -r requirements.txt
 2. **训练模型**:
 ```bash
 # PyTorch 版本
-python train.py --config train-div2k/train_edsr-baseline-liif.yaml
+python train.py --config train-div2k/train_edsr-baseline-liif.yaml --name liif_edsr_baseline_v1  --gpu 0
 
 # Jittor 版本  
-python train.py --config train-div2k/train_edsr-baseline-liif.yaml
+python trainon0.py --config train-div2k/train_edsr-baseline-liif.yaml --name liif_edsr_baseline_v1
 ```
 
 3. **测试模型**:
