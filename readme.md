@@ -219,12 +219,12 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 **原论文结果**:
 ![实验1原论文结果](readmepng/e1.png)
 
-**我们的双框架实现效果**:
+**我的双框架实现效果**:
 
 在 DIV2K 验证集上的定量对比 (PSNR (dB))
 
-| 方法 | 分布内尺度 | 分布外尺度 |
-|------|------------|------------|
+| 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
+|------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
 | **EDSR-baseline-MetaSR** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
 | **EDSR-baseline-LIIF(ours)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
@@ -235,10 +235,10 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 **原论文结果**:
 ![实验2原论文结果](readmepng/e2.png)
 
-**我们的双框架实现效果** (基于 EDSR 网络):
+**我的双框架实现效果** (基于 EDSR 网络):
 
-| 数据集 | 方法 | 分布内尺度 | 分布外尺度 |
-|--------|------|------------|------------|
+| 数据集 | 方法 | 分布内尺度 | | | 分布外尺度 | |
+|--------|------|------------|------------|------------|------------|------------|
 | | | ×2 | ×3 | ×4 | ×6 | ×8 |
 | **Set5** | EDSR-MetaSR[15] | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
 | | EDSR-LIIF (ours) | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
@@ -260,10 +260,10 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 - `-e`: 移除 local ensemble
 - `-d`: 减少解码函数深度
 
-**我们的双框架实现效果** (基于 EDSR 网络):
+**我的双框架实现效果** (基于 EDSR 网络):
 
-| 方法 | 分布内尺度 | 分布外尺度 |
-|------|------------|------------|
+| 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
+|------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
 | **LIIF** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
 | **LIIF (-c)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
@@ -278,10 +278,10 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 
 **说明**: `×k-only` 表示仅使用上采样尺度 k 的样本对训练模型。
 
-**我们的双框架实现效果** (基于 EDSR 网络):
+**我的双框架实现效果** (基于 EDSR 网络):
 
-| 方法 | 分布内尺度 | 分布外尺度 |
-|------|------------|------------|
+| 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
+|------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
 | **LIIF** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
 | **LIIF (×2-only)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
