@@ -71,7 +71,7 @@ LIIF/
 
 ## 🔄 PyTorch 到 Jittor 迁移心得
 
-详细的迁移指南请参考：[LIIF_PyTorch_to_Jittor_Migration_Guide.md](./LIIF_PyTorch_to_Jittor_Migration_Guide.md)
+详细的迁移指南请参考：[LIIF_PyTorch_to_Jittor_Migration_Guide.md](./liif_jittor/LIIF_PyTorch_to_Jittor_Migration_Guide.md)
 
 ### 1. API 兼容性
 
