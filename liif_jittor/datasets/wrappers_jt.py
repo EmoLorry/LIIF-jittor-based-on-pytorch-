@@ -123,20 +123,36 @@ class SRImplicitPaired(Dataset):
 #     out = np.asarray(pil_resized).astype('float32') / 255.0  # HWC in [0,1]
 #     out = np.transpose(out, (2, 0, 1))  # HWC -> CHW
 #     return jt.array(out)
-def resize_fn(img, size):
-    # Accept size as int or (H, W)
-    if isinstance(size, int):
-        target_h, target_w = size, size
-    else:
-        target_h, target_w = int(size[0]), int(size[1])
+#这个jittor的实现底层效果不同，影响性能对齐
+# def resize_fn(img, size):
+#     # Accept size as int or (H, W)
+#     if isinstance(size, int):
+#         target_h, target_w = size, size
+#     else:
+#         target_h, target_w = int(size[0]), int(size[1])
 
-    # 确保 img 是 4D 张量 [N, C, H, W]
-    if img.ndim == 3:
-        img = img.unsqueeze(0)  # [1, C, H, W]
+#     # 确保 img 是 4D 张量 [N, C, H, W]
+#     if img.ndim == 3:
+#         img = img.unsqueeze(0)  # [1, C, H, W]
     
-    # 使用正确的参数格式 (H, W)
-    out = jt.nn.resize(img, (target_h, target_w), mode='bicubic', align_corners=False)
-    return out.squeeze(0)  # 如果只处理单张图，去掉 batch 维
+#     # 使用正确的参数格式 (H, W)
+#     out = jt.nn.resize(img, (target_h, target_w), mode='bicubic', align_corners=False)
+#     return out.squeeze(0)  # 如果只处理单张图，去掉 batch 维
+def resize_fn(img, size):
+    """对齐与 torchvision.transforms 相同的 resize 效果，否则性能差异：复现踩坑点"""
+    # 将 Jittor 张量转换为 PIL 图像
+    img_np = img.numpy().transpose(1, 2, 0)  # CHW -> HWC
+    img_np = (img_np * 255).astype(np.uint8)
+    pil_img = Image.fromarray(img_np)
+    
+    if isinstance(size, int):
+        size = (size, size)
+    resized_img = pil_img.resize(size, Image.BICUBIC)
+    
+    resized_np = np.array(resized_img, dtype=np.float32) / 255.0
+    resized_np = resized_np.transpose(2, 0, 1)  # HWC -> CHW
+    return jt.array(resized_np)
+
 
 @register('sr-implicit-downsampled')
 class SRImplicitDownsampled(Dataset):
