@@ -73,14 +73,7 @@ utils_jittor.py (工具函数)
     ↓
 test.py (验证评估)
 ```
-
-### 2.2 数据流向
-
-```
-原始图像 → image_folder_jt.py → wrappers_jt.py → train.py → models_jt.py → 输出
-```
-
-### 2.3 模型组件关系
+### 2.2 模型组件关系
 
 ```
 LIIF模型
@@ -172,8 +165,8 @@ inp_sub = torch.FloatTensor(t['sub']).view(1, -1, 1, 1).cuda()
 inp_div = torch.FloatTensor(t['div']).view(1, -1, 1, 1).cuda()
 
 # Jittor版本
-inp_sub = jt.array(t['sub'], dtype=jt.float32).reshape(1, -1, 1, 1).cuda()
-inp_div = jt.array(t['div'], dtype=jt.float32).reshape(1, -1, 1, 1).cuda()
+inp_sub = jt.array(t['sub'], dtype=jt.float32).reshape(1, -1, 1, 1)
+inp_div = jt.array(t['div'], dtype=jt.float32).reshape(1, -1, 1, 1)
 ```
 
 #### 3.2.3 模型保存差异
@@ -220,21 +213,6 @@ return -10 * jt.log(mse) / jt.log(jt.array(10.0))
 
 #### 3.4.1 图像文件夹数据集 (`image_folder.py` vs `image_folder_jt.py`)
 
-**继承差异：**
-```python
-# PyTorch版本
-from torch.utils.data import Dataset
-class ImageFolder(Dataset):
-
-# Jittor版本
-from jittor.dataset import Dataset
-class ImageFolder(Dataset):
-    def __init__(self, ...):
-        super().__init__()
-        # 必须设置总长度
-        self.set_attrs(total_len = len(self.files) * self.repeat)
-```
-
 **图像转换差异：**
 ```python
 # PyTorch版本
@@ -248,43 +226,10 @@ def pil_to_jt_tensor(img_pil):
     return jt.array(arr)
 ```
 
-#### 3.4.2 数据包装器 (`wrappers.py` vs `wrappers_jt.py`)
-
-**随机采样差异：**
-```python
-# PyTorch版本
-sample_lst = np.random.choice(len(hr_coord), self.sample_q, replace=False)
-hr_coord = hr_coord[sample_lst]
-hr_rgb = hr_rgb[sample_lst]
-
-# Jittor版本
-N = hr_coord.shape[0]
-idx = jt.randperm(N)[:self.sample_q]
-hr_coord = hr_coord[idx]
-hr_rgb = hr_rgb[idx]
-```
-
-**张量创建差异：**
-```python
-# PyTorch版本
-cell = torch.ones_like(hr_coord)
-
-# Jittor版本
-cell = jt.ones_like(hr_coord)
-```
-
 ### 3.5 测试脚本 (`test.py`)
 
-#### 3.5.1 无梯度计算差异
-```python
-# PyTorch版本
-with torch.no_grad():
 
-# Jittor版本
-with jt.no_grad():
-```
-
-#### 3.5.2 张量连接差异
+#### 3.5.1 张量连接差异
 ```python
 # PyTorch版本
 pred = torch.cat(preds, dim=1)
@@ -292,81 +237,4 @@ pred = torch.cat(preds, dim=1)
 # Jittor版本
 pred = jt.contrib.concat(preds, dim=1)
 ```
-
-#### 3.5.3 张量操作差异
-```python
-# PyTorch版本
-pred.clamp_(0, 1)
-pred = pred.view(*shape).permute(0, 3, 1, 2).contiguous()
-
-# Jittor版本
-pred = pred.clamp(0, 1)
-pred = pred.reshape(*shape).permute(0, 3, 1, 2).contiguous()
-```
-
-## 4. 迁移要点总结
-
-### 4.1 核心迁移原则
-
-1. **方法名替换**: `forward()` → `execute()`
-2. **张量库替换**: `torch` → `jt`
-3. **数据加载简化**: 移除 `DataLoader`，直接使用数据集
-4. **内存管理**: 使用 `jt.reuse_np_array()` 优化内存
-5. **CUDA设置**: 添加 `jt.flags.use_cuda = 1`
-
-### 4.2 常见API映射
-
-| PyTorch API | Jittor API | 说明 |
-|------------|-----------|------|
-| `torch.cat()` | `jt.contrib.concat()` | 张量连接 |
-| `torch.stack()` | `jt.stack()` | 张量堆叠 |
-| `torch.eye()` | `jt.init.eye()` | 单位矩阵 |
-| `torch.arange()` | `jt.arange()` | 等差数列 |
-| `torch.meshgrid()` | `jt.meshgrid()` | 网格生成 |
-| `torch.log10()` | `jt.log() / jt.log(10)` | 对数运算 |
-| `torch.no_grad()` | `jt.no_grad()` | 无梯度计算 |
-| `torch.save()` | `jt.save()` | 模型保存 |
-| `torch.load()` | `jt.load()` | 模型加载 |
-
-### 4.3 性能优化要点
-
-1. **内存缓存**: 使用 `jt.reuse_np_array()` 避免重复内存分配
-2. **数据类型**: 明确指定 `dtype=jt.float32`
-3. **CUDA优化**: 启用 `jt.flags.use_cuda = 1`
-4. **数据预处理**: 在CPU上进行图像预处理，避免GPU内存爆炸
-
-### 4.4 常见问题及解决方案
-
-1. **数据集长度问题**: Jittor需要明确设置 `total_len`
-2. **张量维度问题**: 使用 `reshape()` 替代 `view()`
-3. **随机采样问题**: 使用 `jt.randperm()` 替代 `np.random.choice()`
-4. **内存泄漏问题**: 及时释放不需要的张量引用
-
-## 5. 验证迁移正确性
-
-### 5.1 功能验证
-- 模型前向传播结果一致性
-- 训练损失收敛性
-- 测试指标准确性
-
-### 5.2 性能验证
-- 训练速度对比
-- 内存使用情况
-- GPU利用率
-
-### 5.3 兼容性验证
-- 模型权重加载
-- 配置文件兼容
-- 数据格式一致
-
-## 6. 总结
-
-本次迁移成功将LIIF项目从PyTorch迁移到Jittor，主要涉及：
-
-1. **框架替换**: 完整的API映射和语法调整
-2. **性能优化**: 内存管理和CUDA优化
-3. **功能保持**: 确保算法逻辑和结果一致性
-4. **代码简化**: 移除不必要的DataLoader封装
-
-迁移后的Jittor版本保持了与PyTorch版本相同的功能，同时在某些方面获得了性能提升。
 
