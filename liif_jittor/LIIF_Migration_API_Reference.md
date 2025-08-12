@@ -165,97 +165,30 @@ jt.flags.use_cuda = 1
 | `jt.flags.use_cuda = 1` | 启用CUDA |
 | `jt.flags.enable_tuner = 1` | 启用调优器 |
 
-## 9. 图像处理相关
 
-### 9.1 图像转换
-| PyTorch | Jittor | 说明 |
-|---------|--------|------|
-| `transforms.ToTensor()(img)` | `pil_to_jt_tensor(img)` | PIL图像转张量 |
-| `transforms.ToPILImage()(tensor)` | 自定义函数 | 张量转PIL图像 |
 
-### 9.2 内存优化
+## 11. 性能优化建议
+
+### 11.1 内存优化
 | Jittor特有 | 说明 |
 |-----------|------|
 | `jt.reuse_np_array(numpy_array)` | 复用numpy数组内存 |
 
-## 10. 常见错误和解决方案
-
-### 10.1 数据类型错误
-```python
-# 错误：未指定数据类型
-jt.array([1, 2, 3])
-
-# 正确：明确指定数据类型
-jt.array([1, 2, 3], dtype=jt.float32)
-```
-
-### 10.2 维度操作错误
-```python
-# 错误：使用view()可能失败
-tensor.view(-1, 3)
-
-# 正确：使用reshape()更安全
-tensor.reshape(-1, 3)
-```
-
-### 10.3 数据集长度错误
-```python
-# 错误：未设置total_len
-class MyDataset(Dataset):
-    def __init__(self):
-        super().__init__()
-
-# 正确：设置total_len
-class MyDataset(Dataset):
-    def __init__(self):
-        super().__init__()
-        self.set_attrs(total_len=1000)
-```
-
-### 10.4 随机采样错误
-```python
-# 错误：使用numpy随机采样
-sample_lst = np.random.choice(N, sample_q)
-
-# 正确：使用Jittor随机采样
-idx = jt.randperm(N)[:sample_q]
-```
-
-## 11. 性能优化建议
-
-### 11.1 内存管理
+### 11.2 内存管理
 1. 使用 `jt.reuse_np_array()` 避免重复内存分配
 2. 及时释放不需要的张量引用
 3. 在CPU上进行图像预处理
 
-### 11.2 数据类型优化
+### 11.3 数据类型优化
 1. 明确指定 `dtype=jt.float32`
 2. 避免不必要的类型转换
 3. 使用合适的数据类型
 
-### 11.3 CUDA优化
-1. 启用 `jt.flags.use_cuda = 1`
+### 11.4 CUDA优化
+1. 不要忘记 `jt.flags.use_cuda = 1`
 2. 使用 `jt.flags.enable_tuner = 1` 进行性能调优
 3. 合理设置批大小
 
-## 12. 迁移检查清单
 
-- [ ] 所有 `torch` 导入替换为 `jt`
-- [ ] 所有 `forward()` 方法替换为 `execute()`
-- [ ] 所有 `torch.cat()` 替换为 `jt.contrib.concat()`
-- [ ] 所有 `torch.stack()` 替换为 `jt.stack()`
-- [ ] 所有 `torch.eye()` 替换为 `jt.init.eye()`
-- [ ] 所有 `torch.arange()` 替换为 `jt.arange()`
-- [ ] 所有 `torch.meshgrid()` 替换为 `jt.meshgrid()`
-- [ ] 所有 `torch.log10()` 替换为对数换底公式
-- [ ] 所有 `torch.no_grad()` 替换为 `jt.no_grad()`
-- [ ] 所有 `torch.save()` 替换为 `jt.save()`
-- [ ] 所有 `torch.load()` 替换为 `jt.load()`
-- [ ] 移除所有 `DataLoader` 封装
-- [ ] 添加 `jt.flags.use_cuda = 1`
-- [ ] 设置数据集 `total_len`
-- [ ] 使用 `jt.randperm()` 替代 `np.random.choice()`
-- [ ] 使用 `reshape()` 替代 `view()`
-- [ ] 使用 `jt.reuse_np_array()` 优化内存
-- [ ] 明确指定张量数据类型
+
 
