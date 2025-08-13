@@ -186,20 +186,101 @@ optimizer.step()
 ### 5.1 训练对齐验证
 
 #### 实验 1: EDSR-LIIF Baseline
-**100 轮训练 Loss 曲线对比** (PyTorch vs Jittor)
+**前100轮训练曲线对比** (PyTorch vs Jittor)
 
-![EDSR-LIIF Baseline Loss 对比](path/to/loss_comparison_1.png)
+![EDSR-LIIF Baseline 对比](readmepng/training_plots/edsr_liif_baseline_comparison.png)
 
-#### 实验 2: EDSR-LIIF Baseline
-**100 轮训练 Loss 曲线对比** (PyTorch vs Jittor)
+**第100轮收敛结果**:
+- PyTorch: Loss=0.0333, PSNR=29.99dB
+- Jittor: Loss=0.0331, PSNR=29.79dB
+- Loss差异: 0.0002, PSNR差异: 0.20dB
 
-![EDSR-LIIF Baseline Loss 对比](path/to/loss_comparison_2.png)
+#### 实验 2: RDN-LIIF
+**前100轮训练曲线对比** (PyTorch vs Jittor)
+
+![RDN-LIIF 对比](readmepng/training_plots/rdn_liif_v1_comparison.png)
+
+**第100轮收敛结果**:
+- PyTorch: Loss=0.0323, PSNR=30.08dB
+- Jittor: Loss=0.0322, PSNR=29.80dB
+- Loss差异: 0.0001, PSNR差异: 0.28dB
+
+#### 实验 3: EDSR-LIIF Ablation (-c)
+**前100轮训练曲线对比** (PyTorch vs Jittor)
+
+![EDSR-LIIF Ablation C 对比](readmepng/training_plots/edsr_liif_ablation_c_comparison.png)
+
+**第100轮收敛结果**:
+- PyTorch: Loss=0.0334, PSNR=29.86dB
+- Jittor: Loss=0.0335, PSNR=29.65dB
+- Loss差异: 0.0001, PSNR差异: 0.21dB
+
+**结论**: 三个核心实验的训练曲线高度一致，Loss差异均在0.0002以内，验证了PyTorch到Jittor迁移的正确性。
+
+
 
 ### 5.2 推理效果展示
 
-| 原图 | PyTorch 版本 | Jittor 版本 |
-|------|-------------|-------------|
-| ![原图](new.png) | ![PyTorch 结果](path/to/torch_result.png) | ![Jittor 结果](path/to/jittor_result.png) |
+**原图**
+![原图](readmepng/new.png)
+demo超分任务：分辨率*10
+
+#### 基线实验对比
+**对比结果**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_baseline.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_baseline.png) |
+
+#### 消融实验对比
+
+**LIIF (-c) - 移除 cell decoding**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_c.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_c.png) |
+
+**LIIF (-d) - 减少解码函数深度**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_d.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_d.png) |
+
+**LIIF (-e) - 移除 local ensemble**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_e.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_e.png) |
+
+**LIIF (-u) - 移除 feature unfolding**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_u.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_u.png) |
+
+#### 特定尺度训练对比
+
+**LIIF (×2-only) - 仅使用×2尺度训练**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_x2.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_x2.png) |
+
+**LIIF (×3-only) - 仅使用×3尺度训练**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_x3.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_x3.png) |
+
+**LIIF (×4-only) - 仅使用×4尺度训练**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_x4.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_x4.png) |
+
+#### 不同网络架构对比
+
+**RDN-LIIF**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/rdn_liif_v1.png) | ![Jittor 结果](demo_result/demo_result_jittor/rdn_liif_v1.png) |
+
+**EDSR-MetaSR**
+| PyTorch 版本 | Jittor 版本 |
+|-------------|-------------|
+| ![PyTorch 结果](demo_result/demo_result_torch/edsr_metasr_v1.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_metasr_v1.png) |
 
 ## 🧪 论文实验复现
 
