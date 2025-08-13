@@ -98,7 +98,7 @@ def make_optimizer(param_list, optimizer_spec):
 ##  args:
 ##    lr: 1.e-4        # 学习率
 
-    optimizer = Optimizer(param_list, **optimizer_spec['args'])
+    optimizer = Optimizer(param_list, **optimizer_spec['args'],eps=1e-08, betas=(0.9, 0.999), weight_decay=0)
     #其实就是调用
     # classjittor.optim.Adam(params, lr, eps=1e-08, betas=(0.9, 0.999), weight_decay=0)
     return optimizer
@@ -137,13 +137,18 @@ def to_pixel_samples(img):
 def calc_psnr(sr, hr, dataset=None, scale=1, rgb_range=1):
     diff = (sr - hr) / rgb_range
     if dataset is not None:
-        if dataset == 'div2k':
+        if dataset == 'benchmark':
+            shave = scale
+            if diff.shape[1] > 1:
+                gray_coeffs = [65.738, 129.057, 25.064]
+                convert = jt.array(gray_coeffs, dtype=jt.float32).reshape(1, 3, 1, 1) / 256
+                diff = diff.mul(convert).sum(dim=1)
+        elif dataset == 'div2k':
             shave = scale + 6
         else:
             raise NotImplementedError
         valid = diff[..., shave:-shave, shave:-shave]
     else:
         valid = diff
-    # 计算均方误差,因为传入的是torch.Tensor->jt.Var
-    mse = valid.pow(2).mean()  # Jittor张量的方法
-    return -10 * jt.log(mse) / jt.log(jt.array(10.0))  # 使用换底公式：log10(x) = log(x) / log(10)
+    mse = valid.pow(2).mean()
+    return -10 * jt.log(mse) / jt.log(jt.float32(10))
