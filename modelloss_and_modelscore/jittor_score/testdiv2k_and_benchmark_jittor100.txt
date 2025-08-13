@@ -1,0 +1,119 @@
+# 批量测试结果 - 2025-08-13 03:57:04
+============================================================
+
+
+## 模型: edsr_liif_ablation_e
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_e/epoch-best.pth
+test-div2k-12.yaml: 23.2826
+test-div2k-18.yaml: 21.8190
+test-div2k-2.yaml: 34.2042
+test-div2k-24.yaml: 20.9087
+test-div2k-3.yaml: 30.5980
+test-div2k-30.yaml: 20.2606
+test-div2k-4.yaml: 28.6881
+test-div2k-6.yaml: 26.1843
+----------------------------------------
+
+## 模型: edsr_liif_baseline
+模型路径: ./save_model_jittor_align/edsr_liif_baseline/epoch-best.pth
+test-b100-2.yaml: 31.9656
+test-b100-3.yaml: 28.9162
+test-b100-4.yaml: 27.4201
+test-b100-6.yaml: 25.4437
+test-b100-8.yaml: 24.4984
+test-div2k-12.yaml: 23.2724
+test-div2k-18.yaml: 21.8032
+test-div2k-2.yaml: 34.2067
+test-div2k-24.yaml: 20.8901
+test-div2k-3.yaml: 30.5898
+test-div2k-30.yaml: 20.2399
+test-div2k-4.yaml: 28.6755
+test-div2k-6.yaml: 26.1780
+test-set14-2.yaml: 33.2796
+test-set14-3.yaml: 30.0816
+test-set14-4.yaml: 28.3497
+test-set14-6.yaml: 25.7091
+test-set14-8.yaml: 24.4626
+test-set5-2.yaml: 37.5987
+test-set5-3.yaml: 34.0052
+test-set5-4.yaml: 31.8420
+test-set5-6.yaml: 28.4973
+test-set5-8.yaml: 26.6393
+test-urban100-2.yaml: 31.3438
+test-urban100-3.yaml: 27.5854
+test-urban100-4.yaml: 25.6176
+test-urban100-6.yaml: 23.1439
+test-urban100-8.yaml: 21.9284
+----------------------------------------
+
+## 模型: edsr_liif_ablation_c
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_c/epoch-best.pth
+test-div2k-12.yaml: 23.2436
+test-div2k-18.yaml: 21.7907
+test-div2k-2.yaml: 34.1045
+test-div2k-24.yaml: 20.8928
+test-div2k-3.yaml: 30.5081
+test-div2k-30.yaml: 20.2517
+test-div2k-4.yaml: 28.5923
+test-div2k-6.yaml: 26.1075
+----------------------------------------
+
+## 模型: rdn_liif_v1
+模型路径: ./save_model_jittor_align/rdn_liif_v1/epoch-best.pth
+test-div2k-12.yaml: 23.3343
+test-div2k-18.yaml: 21.8612
+test-div2k-2.yaml: 执行失败 (code=1)
+test-div2k-24.yaml: 20.9379
+test-div2k-3.yaml: 30.6891
+test-div2k-30.yaml: 20.2851
+test-div2k-4.yaml: 28.7840
+test-div2k-6.yaml: 26.2729
+----------------------------------------
+
+## 模型: edsr_liif_ablation_d
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_d/epoch-best.pth
+test-div2k-12.yaml: 23.2366
+test-div2k-18.yaml: 21.7819
+test-div2k-2.yaml: 34.2281
+test-div2k-24.yaml: 20.8723
+test-div2k-3.yaml: 30.5865
+test-div2k-30.yaml: 20.2258
+test-div2k-4.yaml: 28.6680
+test-div2k-6.yaml: 26.1541
+----------------------------------------
+
+## 模型: edsr_liif_ablation_u
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_u/epoch-best.pth
+test-div2k-12.yaml: 23.1810
+test-div2k-18.yaml: 21.7287
+test-div2k-2.yaml: 34.0246
+test-div2k-24.yaml: 20.8261
+test-div2k-3.yaml: 30.4448
+test-div2k-30.yaml: 20.1873
+test-div2k-4.yaml: 28.5655
+test-div2k-6.yaml: 26.0519
+----------------------------------------
+
+## 模型: edsr_liif_ablation_x3
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_x3/epoch-best.pth
+test-div2k-12.yaml: 23.3080
+test-div2k-18.yaml: 21.8386
+test-div2k-2.yaml: 33.9133
+test-div2k-24.yaml: 20.9330
+test-div2k-3.yaml: 30.5854
+test-div2k-30.yaml: 20.2779
+test-div2k-4.yaml: 28.6924
+test-div2k-6.yaml: 26.1969
+----------------------------------------
+
+## 模型: edsr_liif_ablation_x2
+模型路径: ./save_model_jittor_align/edsr_liif_ablation_x2/epoch-best.pth
+test-div2k-12.yaml: 23.1771
+test-div2k-18.yaml: 21.7456
+test-div2k-2.yaml: 34.2117
+test-div2k-24.yaml: 20.8487
+test-div2k-3.yaml: 30.3641
+test-div2k-30.yaml: 20.2097
+test-div2k-4.yaml: 28.5179
+test-div2k-6.yaml: 26.0273
+----------------------------------------
