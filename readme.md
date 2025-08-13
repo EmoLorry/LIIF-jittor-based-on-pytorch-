@@ -55,6 +55,8 @@ LIIF/
 - **EDSR 网络**（原论文配置，100 轮收敛）: ~2 小时
 - **RDN 网络**（原论文配置，100 轮收敛）: ~10 小时
 
+### 基于对训练时间和实际收敛性能的考虑，复现实验我采用前100轮，基本已达到非常接近收敛的效果。
+
 ### 软件环境
 
 | 包名 | 版本 |
@@ -221,9 +223,11 @@ optimizer.step()
 
 ### 5.2 推理效果展示
 
-**原图**
-![原图](readmepng/new.png)
-demo超分任务：分辨率*10
+**原图32 32**
+
+<img src="readmepng/new.png" alt="原图" width="320" height="320" style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges;">
+
+超分任务：分辨率*10 
 
 #### 基线实验对比
 **对比结果**
@@ -231,7 +235,7 @@ demo超分任务：分辨率*10
 |-------------|-------------|
 | ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_baseline.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_baseline.png) |
 
-#### 消融实验对比
+#### 消融实验对比：LIIF组件
 
 **LIIF (-c) - 移除 cell decoding**
 | PyTorch 版本 | Jittor 版本 |
@@ -253,7 +257,7 @@ demo超分任务：分辨率*10
 |-------------|-------------|
 | ![PyTorch 结果](demo_result/demo_result_torch/edsr_liif_ablation_u.png) | ![Jittor 结果](demo_result/demo_result_jittor/edsr_liif_ablation_u.png) |
 
-#### 特定尺度训练对比
+#### 消融实验对比：特定尺度训练
 
 **LIIF (×2-only) - 仅使用×2尺度训练**
 | PyTorch 版本 | Jittor 版本 |
@@ -311,9 +315,9 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 | 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
 |------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
-| **EDSR-baseline-MetaSR** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **EDSR-baseline-LIIF(ours)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **RDN-LIIF(ours)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
+| **EDSR-baseline-MetaSR** | 34.18/- | 30.54/- | 28.58/- | 26.32/- | 23.34/- | 21.86/- | 20.91/- | 20.24/- |
+| **EDSR-baseline-LIIF(ours)** | 34.09/34.21 | 30.54/30.59 | 28.66/28.68 | 26.47/26.18 | 23.50/23.27 | 22.01/21.80 | 21.04/20.89 | 20.36/20.24 |
+| **RDN-LIIF(ours)** | 34.45/执行失败 | 30.83/30.69 | 28.91/28.78 | 26.68/26.27 | 23.65/23.33 | 22.12/21.86 | 21.14/20.94 | 20.45/20.29 |
 
 ### 实验 2: Benchmark 数据集对比
 
@@ -325,14 +329,14 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 | 数据集 | 方法 | 分布内尺度 | | | 分布外尺度 | |
 |--------|------|------------|------------|------------|------------|------------|
 | | | ×2 | ×3 | ×4 | ×6 | ×8 |
-| **Set5** | EDSR-MetaSR[15] | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| | EDSR-LIIF (ours) | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **Set14** | EDSR-MetaSR[15] | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| | EDSR-LIIF (ours) | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **B100** | EDSR-MetaSR[15] | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| | EDSR-LIIF (ours) | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **Urban100** | EDSR-MetaSR[15] | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| | EDSR-LIIF (ours) | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
+| **Set5** | EDSR-MetaSR[15] | 37.63/- | 33.97/- | 31.59/- | 28.27/- | 26.34/- |
+| | EDSR-LIIF (ours) | 37.49/37.60 | 34.02/34.01 | 31.87/31.84 | 28.59/28.50 | 26.68/26.64 |
+| **Set14** | EDSR-MetaSR[15] | 33.25/- | 30.01/- | 28.21/- | 25.96/- | 24.51/- |
+| | EDSR-LIIF (ours) | 33.27/33.28 | 30.08/30.08 | 28.37/28.35 | 26.24/25.71 | 24.76/24.46 |
+| **B100** | EDSR-MetaSR[15] | 31.98/- | 28.91/- | 27.35/- | 25.58/- | 24.54/- |
+| | EDSR-LIIF (ours) | 31.96/31.97 | 28.93/28.92 | 27.43/27.42 | 25.71/25.44 | 24.68/24.50 |
+| **Urban100** | EDSR-MetaSR[15] | 31.37/- | 27.44/- | 25.38/- | 23.19/- | 21.96/- |
+| | EDSR-LIIF (ours) | 31.37/31.34 | 27.65/27.59 | 25.68/25.62 | 23.44/23.14 | 22.17/21.93 |
 
 ### 实验 3: LIIF 设计选择消融研究
 
@@ -350,11 +354,11 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 | 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
 |------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
-| **LIIF** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (-c)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (-u)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (-e)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (-d)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
+| **LIIF** | 34.09/34.21 | 30.54/30.59 | 28.66/28.68 | 26.47/26.18 | 23.50/23.27 | 22.01/21.80 | 21.04/20.89 | 20.36/20.24 |
+| **LIIF (-c)** | 34.07/34.10 | 30.56/30.51 | 28.66/28.59 | 26.48/26.11 | 23.53/23.24 | 22.03/21.79 | 21.08/20.89 | 20.40/20.25 |
+| **LIIF (-u)** | 34.23/- | 30.60/- | 28.70/- | 26.49/- | 23.50/- | 22.00/- | 21.04/- | 20.37/- |
+| **LIIF (-e)** | 34.15/34.20 | 30.56/30.60 | 28.66/28.69 | 26.46/26.18 | 23.48/23.28 | 21.99/21.82 | 21.03/20.91 | 20.35/20.26 |
+| **LIIF (-d)** | 34.25/34.23 | 30.62/30.59 | 28.69/28.67 | 26.48/26.15 | 23.49/23.24 | 21.99/21.78 | 21.03/20.87 | 20.36/20.23 |
 
 ### 实验 4: 特定尺度训练消融研究
 
@@ -368,10 +372,10 @@ RDN 采用密集连接和残差学习，通过多层次特征融合提升超分�
 | 方法 | 分布内尺度 | | | 分布外尺度 | | | | |
 |------|------------|------------|------------|------------|------------|------------|------------|------------|
 | | ×2 | ×3 | ×4 | ×6 | ×12 | ×18 | ×24 | ×30 |
-| **LIIF** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (×2-only)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (×3-only)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
-| **LIIF (×4-only)** | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor | PyTorch/Jittor |
+| **LIIF** | 34.09/34.21 | 30.54/30.59 | 28.66/28.68 | 26.47/26.18 | 23.50/23.27 | 22.01/21.80 | 21.04/20.89 | 20.36/20.24 |
+| **LIIF (×2-only)** | 34.18/- | 30.34/- | 28.50/- | 26.32/- | 23.41/- | 21.94/- | 20.99/- | 20.32/- |
+| **LIIF (×3-only)** | 33.96/- | 30.63/- | 28.72/- | 26.51/- | 23.54/- | 22.04/- | 21.08/- | 20.40/- |
+| **LIIF (×4-only)** | 33.75/- | 30.48/- | 28.68/- | 26.51/- | 23.56/- | 22.06/- | 21.08/- | 20.41/- |
 
 ---
 
