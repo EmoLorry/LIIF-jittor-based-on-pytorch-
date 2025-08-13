@@ -234,7 +234,15 @@ optimizer.step()
 
 **原图32 32**
 
-<img src="readmepng/new.png" alt="原图" width="320" height="320" style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges;">
+<img src="readmepng/new.png"
+     alt="原图"
+     width="320"
+     height="320"
+     style="image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            image-rendering: -o-crisp-edges;">
+
 
 超分任务：分辨率*10 
 
